@@ -12,3 +12,5 @@ langchain_chroma
 dotenv
 unstructured
 unstructured[pdf]
+groq
+fastapi

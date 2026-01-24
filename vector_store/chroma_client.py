@@ -3,8 +3,9 @@ import chromadb
 from langchain_chroma import Chroma
 from chromadb.utils.embedding_functions import SentenceTransformerEmbeddingFunction
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_core.documents import Document
 
-from typing import List, Dict, Any
+from typing import Any
 
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
@@ -33,14 +34,14 @@ class RagAppChromaClient(object):
         self._hug_embeddings = HuggingFaceEmbeddings(
                                                 model_name=f"sentence-transformers/{EMBED_MODEL}"
                                                 )
-    def add_documents(self,texts:List, metadata:List[Dict[str, Any]], id:List[str]) -> None:
+    def add_documents(self,texts:list[Document], metadata:list[dict[str, Any]], id:list[str]) -> None:
         self._collection.add(
             documents=texts,
             metadatas=metadata,
             ids=id
         )        
 
-    def mmr_search(self, query:str):
+    def mmr_search(self, query:str) -> list[Document]:
         vector_db = Chroma(
             client=self._client,
             collection_name=self._collection_name,
@@ -56,7 +57,7 @@ class RagAppChromaClient(object):
         docs = retriever.invoke(query)
         return docs
     
-    def qurey_chroma(self, query:str):
+    def qurey_chroma(self, query:str) -> dict[str, Any]:
         results = self._collection.query(
             query_texts=[query],
             n_results = 3
