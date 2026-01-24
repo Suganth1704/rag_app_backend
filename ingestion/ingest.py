@@ -1,7 +1,7 @@
 import os
 from typing import List
 
-from langchain_community.document_loaders import (Docx2txtLoader, PyPDFLoader,TextLoader)
+from langchain_community.document_loaders import (Docx2txtLoader, PyPDFLoader,TextLoader, PyMuPDFLoader)
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_unstructured import UnstructuredLoader
@@ -15,7 +15,7 @@ def load_docs() -> List[Document]:
     for file in os.listdir(DATA_DIR):
         path = os.path.join(DATA_DIR, file)
         if path.endswith('.pdf'):
-            docs.extend(PyPDFLoader(path).load())
+            docs.extend(PyMuPDFLoader(path).load())
         elif path.endswith('.txt'):
             docs.extend(TextLoader(path).load())
         elif path.endswith('.docx'):
@@ -38,7 +38,7 @@ def start_ingest() -> None:
     ragAppChromaDb = RagAppChromaClient()
 
     documents = [chunk.page_content for chunk in document_chunks]
-    metadata = [{"source":chunk.metadata.get("source"), "page": chunk.metadata.get("page")} for chunk in document_chunks]
+    metadata = [{"source":chunk.metadata.get("source"), "page": chunk.metadata.get("page", 0)} for chunk in document_chunks]
     ids=[f"id{i}" for i in range(len(document_chunks))]
     ragAppChromaDb.add_documents(
         texts=documents,

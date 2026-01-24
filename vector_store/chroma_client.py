@@ -34,12 +34,28 @@ class RagAppChromaClient(object):
         self._hug_embeddings = HuggingFaceEmbeddings(
                                                 model_name=f"sentence-transformers/{EMBED_MODEL}"
                                                 )
+        self._batch_size = 30
     def add_documents(self,texts:list[Document], metadata:list[dict[str, Any]], id:list[str]) -> None:
-        self._collection.add(
-            documents=texts,
-            metadatas=metadata,
-            ids=id
-        )        
+        # To avoid NUM_RECORDS error
+        for i in range(0, len(texts),self._batch_size):
+            if not self.source_exists(metadata):
+                print("Not found in db, ngesting")
+                self._collection.add(
+                    documents=texts[i:i+self._batch_size],
+                    metadatas=metadata[i:i+self._batch_size],
+                    ids=id[i:i+self._batch_size]
+                ) 
+            else:
+                print("Already Exist")
+
+    def source_exists(self,metadata:list[dict[str, Any]]) -> bool:
+        source = ''.join(set(list(map(lambda x: x['source'], metadata))))
+        res = self._collection.get(
+                    where={"source":source},
+                    limit=1
+        )
+        return True if res else False
+
 
     def mmr_search(self, query:str) -> list[Document]:
         vector_db = Chroma(

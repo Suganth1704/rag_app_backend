@@ -2,4 +2,5 @@
 .env
 vector_store/__pycache__/
 ingestion/__pycache__/
+llm/__pycache__/
 data/*

@@ -7,6 +7,8 @@ torch
 sentence-transformers
 transformers
 pypdf
+pymupdf
+docx2txt
 chromadb
 langchain_chroma
 dotenv

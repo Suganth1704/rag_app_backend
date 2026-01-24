@@ -4,10 +4,10 @@ from llm.groq_client import GroqClient
 
 if __name__ == "__main__":
     print('start')
-    #start_ingest()
+    start_ingest()
     obj = RagAppChromaClient()
     groq_client = GroqClient()
-    q = 'How cook sambar?'
+    q = 'Importance of Character in Ethics?'
     r = obj.mmr_search(query=q)
     #r = obj.qurey_chroma(query=q)
     context = "\n".join([d.page_content for d in r])
