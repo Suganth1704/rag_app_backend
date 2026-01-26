@@ -8,7 +8,7 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict
 
 from .groq_client import GroqClient
-from vector_store.chroma_client import RagAppChromaClient
+from ..vector_store.chroma_client import RagAppChromaClient
 
 import logging
 logger = logging.getLogger(__name__)

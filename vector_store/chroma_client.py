@@ -24,10 +24,19 @@ class RagAppChromaClient(object):
     def __init__(self):
         self._db = CHROMA_DB
         self._collection_name = RAG_APP_COLL
-        self._client = chromadb.CloudClient(
-                        api_key=CHROMA_API_KEY,
-                        tenant=TENANT,
-                        database=self._db)
+        self._tries = 1
+        while self._tries <= 3:
+            try:
+                logger.info("Connecting to chroma....")
+                logger.info(f"Try: {self._tries}")
+                self._client = chromadb.CloudClient(
+                                api_key=CHROMA_API_KEY,
+                                tenant=TENANT,
+                                database=self._db)
+                break
+            except Exception as ex:
+                logger.error(f"{ex}")
+                self._tries += 1
         self._embedding_function = SentenceTransformerEmbeddingFunction(model_name=EMBED_MODEL)
         self._collection = self._client.get_or_create_collection(
                                                     name=self._collection_name,
@@ -58,7 +67,7 @@ class RagAppChromaClient(object):
                     where={"source":source},
                     limit=1
         )
-        return True if res else False
+        return True if res['metadatas'] else False
 
 
     def mmr_search(self, query:str) -> list[Document]:

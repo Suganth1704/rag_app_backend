@@ -6,7 +6,7 @@ from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_unstructured import UnstructuredLoader
 
-from vector_store.chroma_client import RagAppChromaClient
+from ..vector_store.chroma_client import RagAppChromaClient
 
 import logging
 logger = logging.getLogger(__name__)
