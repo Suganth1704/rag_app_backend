@@ -10,6 +10,9 @@ from typing import Any
 from dotenv import load_dotenv, find_dotenv
 load_dotenv(find_dotenv())
 
+import logging
+logger = logging.getLogger(__name__)
+
 CHROMA_API_KEY = os.getenv('CHROMA_API_KEY')
 TENANT = os.getenv('TENANT')
 CHROMA_DB = os.getenv('CHROMA_DB')
@@ -39,14 +42,15 @@ class RagAppChromaClient(object):
         # To avoid NUM_RECORDS error
         for i in range(0, len(texts),self._batch_size):
             if not self.source_exists(metadata):
-                print("Not found in db, ngesting")
+                logger.info(f"Loading from the source {''.join(set(list(map(lambda x: x['source'], metadata))))} to {self._collection_name} collection in {self._db} chroma")
                 self._collection.add(
                     documents=texts[i:i+self._batch_size],
                     metadatas=metadata[i:i+self._batch_size],
                     ids=id[i:i+self._batch_size]
                 ) 
             else:
-                print("Already Exist")
+                logger.info(f"{''.join(set(list(map(lambda x: x['source'], metadata))))} source already exist in data base")
+                logger.info("Skipping ingestion ...")
 
     def source_exists(self,metadata:list[dict[str, Any]]) -> bool:
         source = ''.join(set(list(map(lambda x: x['source'], metadata))))
@@ -58,6 +62,7 @@ class RagAppChromaClient(object):
 
 
     def mmr_search(self, query:str) -> list[Document]:
+        logger.info(f"Starting MMR search... | Query : {query}")
         vector_db = Chroma(
             client=self._client,
             collection_name=self._collection_name,
@@ -74,6 +79,7 @@ class RagAppChromaClient(object):
         return docs
     
     def qurey_chroma(self, query:str) -> dict[str, Any]:
+        logger.info("Starting searching from chroma... | Query : {query}")
         results = self._collection.query(
             query_texts=[query],
             n_results = 3

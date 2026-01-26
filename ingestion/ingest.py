@@ -8,12 +8,17 @@ from langchain_unstructured import UnstructuredLoader
 
 from vector_store.chroma_client import RagAppChromaClient
 
+import logging
+logger = logging.getLogger(__name__)
+
 DATA_DIR='data'
 
 def load_docs() -> List[Document]:
+    logger.info("Loading documents")
     docs = []
     for file in os.listdir(DATA_DIR):
         path = os.path.join(DATA_DIR, file)
+        logger.info(f"Source : {path}")
         if path.endswith('.pdf'):
             docs.extend(PyMuPDFLoader(path).load())
         elif path.endswith('.txt'):
@@ -21,6 +26,7 @@ def load_docs() -> List[Document]:
         elif path.endswith('.docx'):
             docs.extend(Docx2txtLoader(path).load())
         else:
+            logger.info("Loading an unstructured document")
             loader = UnstructuredLoader(path,
                                 mode="elements",
                                 strategy="auto")
@@ -29,11 +35,13 @@ def load_docs() -> List[Document]:
     return docs
 
 def get_chunks() -> List[Document]:
+    logger.info("Splitting chunks")
     splitter = RecursiveCharacterTextSplitter(chunk_size=700, chunk_overlap=150)
     chunks = splitter.split_documents(load_docs())
     return chunks
 
 def start_ingest() -> None:
+    logger.info("Starting ingestion ...")
     document_chunks = get_chunks()
     ragAppChromaDb = RagAppChromaClient()
 

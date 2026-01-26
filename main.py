@@ -1,25 +1,36 @@
 from ingestion.ingest import start_ingest
 from vector_store.chroma_client import RagAppChromaClient
-from llm.groq_client import GroqClient
+from llm.chat import get_rag_graph, get_history
+
+from config.logging import setup_logging
+setup_logging()
+import logging
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
-    print('start')
+    logger.info("Start execution ...")
     start_ingest()
-    obj = RagAppChromaClient()
-    groq_client = GroqClient()
-    q = 'Importance of Character in Ethics?'
-    r = obj.mmr_search(query=q)
-    #r = obj.qurey_chroma(query=q)
-    context = "\n".join([d.page_content for d in r])
-    prompt = f"""
-    
-    Answer using only the context below.
+    cnt = 1
+    session_id = f"user-{cnt}"
+    hist = get_history(session_id=session_id)
+    while True:
+        
+        question = input("Ask your question: \n")
+        rag_graph = get_rag_graph()
+        res = rag_graph.invoke({
+            "question":question,
+            "chat_history": hist.messages
+        })
+        hist.add_user_message(question)
+        hist.add_ai_message(res["answer"])
 
-    Context:
-    {context}
+        print(res["answer"])
 
-    Question: {q}
-    """
+        c = input("Do you want to continue ? (y/n)")
+        if c.lower() == 'y':
+            cnt+=1
+        else:
+            break
 
-    resp = groq_client.getChatResponse(message=prompt)
     print()
+    

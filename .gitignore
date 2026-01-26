@@ -3,4 +3,6 @@
 vector_store/__pycache__/
 ingestion/__pycache__/
 llm/__pycache__/
+config/__pycache__/
+__pycache__/
 data/*
