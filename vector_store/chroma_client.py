@@ -69,6 +69,11 @@ class RagAppChromaClient(object):
         )
         return True if res['metadatas'] else False
 
+    def get_available_srcs(self,) -> list[str]:
+        res = self._collection.get(
+            include=["metadatas"]
+        )
+        return list(set(map(lambda x: x['source'], res['metadatas'])))
 
     def mmr_search(self, query:str) -> list[Document]:
         logger.info(f"Starting MMR search... | Query : {query}")

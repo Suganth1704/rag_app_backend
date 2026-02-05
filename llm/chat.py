@@ -1,5 +1,6 @@
 
 from langchain_core.chat_history import InMemoryChatMessageHistory
+from langchain_community.chat_message_histories import RedisChatMessageHistory
 from langchain_core.documents import Document
 from langchain_core.messages import BaseMessage
 
@@ -12,6 +13,12 @@ from ..vector_store.chroma_client import RagAppChromaClient
 
 import logging
 logger = logging.getLogger(__name__)
+
+PWD = os.getenv('REDIS_DB_PWD')
+REDIS_CLOUD_HOST = os.getenv('REDIS_CLOUD_HOST')
+REDIS_POR = os.getenv('REDIS_PORT')
+#REDIS_URL = "redis://:yourpassword@your-endpoint:yourport/0"
+REDIS_URL = f"redis://:{PWD}@{REDIS_CLOUD_HOST}:{REDIS_POR}/0"
 
 class RAGState(TypedDict):
     question:str
@@ -62,9 +69,14 @@ def get_rag_graph():
     return rag_graph
 
 store = {}
-def get_history(session_id:str):
+def get_inMem_history(session_id:str):
     if len(store) > 5:
         store.popitem()
     if session_id not in store:
         store[session_id] = InMemoryChatMessageHistory()
     return store[session_id]
+
+def get_history(user_id:str, session_id:str):
+    key = f"{user_id}:{session_id}"
+    return RedisChatMessageHistory(session_id=key, url=REDIS_URL)
+

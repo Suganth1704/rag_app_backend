@@ -1,9 +1,12 @@
 import os
 from fastapi import APIRouter, UploadFile, File
-from .schema import QueryRequest, QueryResponse, IngestionResponse
-from ..llm.chat import get_rag_graph
+from .schema import QueryRequest, QueryResponse, IngestionResponse, AllSrcResponse,SessionCreateRequest
+from ..llm.chat import get_rag_graph, get_history
 from ..ingestion.ingest import start_ingest
+from ..vector_store.chroma_client import RagAppChromaClient
+
 import shutil
+import uuid
 
 import logging
 logger = logging.getLogger(__name__)
@@ -19,6 +22,13 @@ def delete_file_after_ingest(path:str) -> None:
 @router.get("/health")
 def health() -> dict:
     return {"status":"Okay"}
+
+@router.post("/session")
+def create_session(request:SessionCreateRequest):
+    session_id = str(uuid.uuid4)
+    history =get_history(user_id=request.user_id, session_id=session_id)
+    history.clear()
+    return {"session_id": session_id}
 
 @router.post("/query", response_model=QueryResponse)
 def query_rag(request:QueryRequest) -> QueryResponse:
@@ -53,4 +63,12 @@ def upload_and_ingest(file: UploadFile = File(...)) -> IngestionResponse:
         status="Success" if not exception else "Failed",
         filename=file.filename,   
         exception="NA" if not exception else str(exception)
+    )
+
+@router.get("/get_all_src", response_model=AllSrcResponse)
+def get_available_srcs() -> AllSrcResponse:
+    chroma_client = RagAppChromaClient()
+    res = chroma_client.get_available_srcs()
+    return AllSrcResponse(
+        source=res
     )
