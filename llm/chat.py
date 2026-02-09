@@ -11,6 +11,7 @@ from typing import TypedDict
 from .groq_client import GroqClient
 from ..vector_store.chroma_client import RagAppChromaClient
 
+import os
 import logging
 logger = logging.getLogger(__name__)
 

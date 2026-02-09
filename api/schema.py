@@ -4,6 +4,8 @@ from typing import Optional, Any
 class QueryRequest(BaseModel):
     query: str
     chat_history: Optional[list] = None
+    session_id: str
+    user_id: str
 
 class QueryResponse(BaseModel):
     question: Optional[str]
@@ -19,5 +21,7 @@ class AllSrcResponse(BaseModel):
     source: list[str]
 
 class SessionCreateRequest(BaseModel):
-    user_id: str
-    #chat_tab: int | None = None 
+    user_id: str 
+
+class SessionCreateResponse(BaseModel):
+    session_id: str

@@ -1,6 +1,6 @@
 import os
 from fastapi import APIRouter, UploadFile, File
-from .schema import QueryRequest, QueryResponse, IngestionResponse, AllSrcResponse,SessionCreateRequest
+from .schema import * #QueryRequest, QueryResponse, IngestionResponse, AllSrcResponse,SessionCreateRequest
 from ..llm.chat import get_rag_graph, get_history
 from ..ingestion.ingest import start_ingest
 from ..vector_store.chroma_client import RagAppChromaClient
@@ -23,20 +23,25 @@ def delete_file_after_ingest(path:str) -> None:
 def health() -> dict:
     return {"status":"Okay"}
 
-@router.post("/session")
-def create_session(request:SessionCreateRequest):
-    session_id = str(uuid.uuid4)
+@router.post("/session", response_model=SessionCreateResponse)
+def create_session(request:SessionCreateRequest) -> SessionCreateResponse:
+    session_id = str(uuid.uuid4())
     history =get_history(user_id=request.user_id, session_id=session_id)
     history.clear()
-    return {"session_id": session_id}
+    return SessionCreateResponse(
+        session_id=session_id
+    )
 
 @router.post("/query", response_model=QueryResponse)
 def query_rag(request:QueryRequest) -> QueryResponse:
     rag_graph = get_rag_graph()
+    history = get_history(user_id=request.user_id, session_id=request.session_id)
     res = rag_graph.invoke({
         "question":request.query,
-        "chat_history": request.chat_history
+        "chat_history": history.messages
     })
+    history.add_user_message(request.query)
+    history.add_ai_message(res['answer'])
     return QueryResponse(
         question=res['question'],
         chat_history=res['chat_history'],

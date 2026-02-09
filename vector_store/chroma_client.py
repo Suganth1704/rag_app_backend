@@ -48,18 +48,19 @@ class RagAppChromaClient(object):
                                                 )
         self._batch_size = 30
     def add_documents(self,texts:list[Document], metadata:list[dict[str, Any]], id:list[str]) -> None:
-        # To avoid NUM_RECORDS error
-        for i in range(0, len(texts),self._batch_size):
-            if not self.source_exists(metadata):
-                logger.info(f"Loading from the source {''.join(set(list(map(lambda x: x['source'], metadata))))} to {self._collection_name} collection in {self._db} chroma")
-                self._collection.add(
-                    documents=texts[i:i+self._batch_size],
-                    metadatas=metadata[i:i+self._batch_size],
-                    ids=id[i:i+self._batch_size]
-                ) 
-            else:
-                logger.info(f"{''.join(set(list(map(lambda x: x['source'], metadata))))} source already exist in data base")
-                logger.info("Skipping ingestion ...")
+        if not self.source_exists(metadata):
+            logger.info(f"Loading from the source {''.join(set(list(map(lambda x: x['source'], metadata))))} to {self._collection_name} collection in {self._db} chroma")
+            # To avoid NUM_RECORDS error
+            for i in range(0, len(texts),self._batch_size):
+                
+                    self._collection.add(
+                        documents=texts[i:i+self._batch_size],
+                        metadatas=metadata[i:i+self._batch_size],
+                        ids=id[i:i+self._batch_size]
+                    ) 
+        else:
+            logger.info(f"{''.join(set(list(map(lambda x: x['source'], metadata))))} source already exist in data base")
+            logger.info("Skipping ingestion ...")
 
     def source_exists(self,metadata:list[dict[str, Any]]) -> bool:
         source = ''.join(set(list(map(lambda x: x['source'], metadata))))
@@ -85,8 +86,7 @@ class RagAppChromaClient(object):
         retriever = vector_db.as_retriever(
             search_type="mmr",
             search_kwargs={
-                "k": 4,
-                "fetch_k": 12
+                "k": 5
             }
         )
         docs = retriever.invoke(query)
