@@ -51,6 +51,9 @@ Response**
 -   Logging
 -   python-dotenv (.env)
 
+## 🔹 Versioning
+
+-  Git & Git hub
 ------------------------------------------------------------------------
 
 # ⚙️ System Workflow
