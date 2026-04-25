@@ -16,6 +16,8 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 router = APIRouter(prefix="/api", tags=["RAG"])
 
+rag_graph = get_rag_graph()
+
 def delete_file_after_ingest(path:str) -> None:
     os.remove(path)
 
@@ -34,7 +36,7 @@ def create_session(request:SessionCreateRequest) -> SessionCreateResponse:
 
 @router.post("/query", response_model=QueryResponse)
 def query_rag(request:QueryRequest) -> QueryResponse:
-    rag_graph = get_rag_graph()
+    #rag_graph = get_rag_graph()
     history = get_history(user_id=request.user_id, session_id=request.session_id)
     res = rag_graph.invoke({
         "question":request.query,
