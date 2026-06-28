@@ -330,7 +330,7 @@ When a user submits a query:
 
 ---
 
-## Architecture Diagrams
+## Output
 
 <img width="1556" height="930" alt="image" src="https://github.com/user-attachments/assets/164ae1c9-42ad-4f3b-ad47-5a481cc37c3f" />
 <img width="1851" height="555" alt="image" src="https://github.com/user-attachments/assets/dc3e9ec6-fa26-40c9-b185-686d1ce52935" />
