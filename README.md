@@ -187,7 +187,6 @@ Uses `RecursiveCharacterTextSplitter`:
 2. Builds parallel lists: text content, metadata (`source`, `page`), IDs (`id0`, `id1`, …)
 3. Calls `RagAppChromaClient.add_documents()`
 
-> **Note:** Ingestion runs on **all files in `data/`**, not only the uploaded file. After upload the file is deleted, so typically only that file is processed—but if others remain in `data/`, they are included too.
 
 ---
 
@@ -309,8 +308,6 @@ When a user submits a query:
 2. **MMR Search** — ChromaDB retrieves relevant chunks using **MMR (Maximal Marginal Relevance)**, ensuring results are relevant and diverse (non-redundant).
 3. **Similarity Matching** — Embedding similarity search identifies the most relevant document chunks.
 
-> **Note:** BM25-based retrieval could further improve keyword-based search performance.
-
 ### 3. Response Generation (Chat Pipeline)
 
 1. Retrieved document chunks are passed as **context** to the LLM.
@@ -335,3 +332,5 @@ When a user submits a query:
 <img width="1556" height="930" alt="image" src="https://github.com/user-attachments/assets/164ae1c9-42ad-4f3b-ad47-5a481cc37c3f" />
 <img width="1851" height="555" alt="image" src="https://github.com/user-attachments/assets/dc3e9ec6-fa26-40c9-b185-686d1ce52935" />
 <img width="1806" height="815" alt="image" src="https://github.com/user-attachments/assets/20d74274-2a0d-45fc-abff-edc3e2473c46" />
+<img width="1848" height="950" alt="image" src="https://github.com/user-attachments/assets/1828e9c9-562c-4930-bb3b-781afb0bf6d2" />
+
